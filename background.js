@@ -1,13 +1,25 @@
-importScripts('./scripts.js');
-importScripts('./chrome_scripts.js');
+importScripts(
+    "./modules/core.js",
+    "./modules/storage.js",
+    "./modules/notifications.js",
+    "./modules/alarms.js"
+);
 
-self.addEventListener("activate", (event) => {
-    event.waitUntil(clients.claim()); 
-    setAlarmIfNotExist();
+// ── Lifecycle hooks ────────────────────────────────────────────────────────────
+
+chrome.runtime.onInstalled.addListener(async () => {
+    await setAlarmIfNotExist();
+    await migrateTimers();
 });
 
-self.addEventListener("alarm", async (event) => {
-    if (event.name === "timers") {
+chrome.runtime.onStartup.addListener(async () => {
+    await setAlarmIfNotExist();
+});
+
+// ── Alarm handler ──────────────────────────────────────────────────────────────
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+    if (alarm.name === "timers") {
         const timers = await getFromChromeSyncStorage();
         const currentTime = new Date().getTime();
         let isDataModified = false;
@@ -16,7 +28,9 @@ self.addEventListener("alarm", async (event) => {
             if (currentTime >= e["end_date"] && e.active) {
                 e.active = false;
                 isDataModified = true;
-                triggerChromeNotification(`Congratulations! Your timer "${e.title}" just finished counting down. What now?`);
+                triggerChromeNotification(
+                    `Congratulations! Your timer "${e.title}" just finished counting down. What now?`
+                );
                 if (e.newTab && e.newTab.active) {
                     createTab(e.newTab.url);
                 }
@@ -24,18 +38,7 @@ self.addEventListener("alarm", async (event) => {
         });
 
         if (isDataModified) {
-            saveToChromeSyncStorage(timers);
+            await saveToChromeSyncStorage(timers);
         }
-        triggerChromeNotification("Alarm test");
-    } else {
-        triggerChromeNotification("Alarm received: " + event.name);
     }
-});
-
-self.addEventListener("fetch", (event) => {
-    console.log(event);
-});
-
-self.addEventListener("backgroundfetch", (event) => {
-    // Obsługa zdarzeń background fetch, jeśli jest to potrzebne
 });

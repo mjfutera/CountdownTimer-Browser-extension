@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Countdown timer by Michal",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "description": "Create, manage, and be notified for important events.",
     "icons": {
         "128": "logos/logo128.png"
@@ -12,9 +12,12 @@
         "alarms",
         "tabs"
     ],
+    "background": {
+        "service_worker": "background.js"
+    },
     "chrome_url_overrides": {
         "newtab": "newtab.html"
-    },  
+    },
     "author": {
         "name": "Michał Futera",
         "url": "https://linktr.ee/mjfutera"
