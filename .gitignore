@@ -1,0 +1,7 @@
+node_modules/
+
+# build artifacts
+dist/*.zip
+
+# local logs
+npm-debug.log*

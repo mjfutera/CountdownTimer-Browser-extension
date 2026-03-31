@@ -1,25 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My New Tab</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <div class="bg-myWhite padding-10 border-radius-10 main-block cdbm_timers" id="cdbm_timers">
-        <div id="cdbm_timers_active"></div>
-        <!-- <div id="cdbm_timers_inactive"></div> -->
+      <div id="cdbm_timers_active"></div>
+      <!-- <div id="cdbm_timers_inactive"></div> -->
     </div>
-    <div class="bg-myWhite padding-10 border-radius-10 main-block text-middle" style="flex-direction: row; gap:5px;">
-        <span class="links cursor-pointer" id="byMichalFutera">&copy; by Michal Futera</span>
-        ||<span class="links cursor-pointer" id="aboutPlugin">About plugin</span>
-        ||<span id="bigReset" class="links cursor-pointer">Reset plugin</span>
-        <!-- ||<span id="options" class="links cursor-pointer">Options</span> -->
+    <div
+      class="bg-myWhite padding-10 border-radius-10 main-block text-middle"
+      style="flex-direction: row; gap: 5px"
+    >
+      <span class="links cursor-pointer" id="byMichalFutera">&copy; by Michal Futera</span>
+      ||<span class="links cursor-pointer" id="aboutPlugin">About plugin</span> ||<span
+        id="bigReset"
+        class="links cursor-pointer"
+        >Reset plugin</span
+      >
+      <!-- ||<span id="options" class="links cursor-pointer">Options</span> -->
     </div>
-    <dialog id="mainPopUp" class="border-radius-10" style="max-width: 50%;"></dialog>
+    <dialog id="mainPopUp" class="border-radius-10" style="max-width: 50%"></dialog>
+    <script src="core.js"></script>
+    <script src="storage.js"></script>
+    <script src="notifications.js"></script>
+    <script src="ui.js"></script>
     <script src="chrome_scripts.js"></script>
     <script src="scripts.js"></script>
     <script src="index_scripts.js"></script>
-</body>
+  </body>
 </html>

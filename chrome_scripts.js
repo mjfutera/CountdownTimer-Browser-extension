@@ -1,175 +1,196 @@
 const mainMemoryKey = "cdbm_timers_storage";
 
-const getFromChromeSyncStorage = async (key=mainMemoryKey) => {
-    return new Promise((resolve) => {
-        chrome.storage.sync.get([key], (result) => {
-            const dataString = result[key] || "[]";
-            const data = JSON.parse(dataString);
-            resolve(data);
-        });
-    });
+/**
+ * Reads JSON payload from chrome sync storage.
+ * @param {string} [key]
+ * @returns {Promise<any[]>}
+ */
+const getFromChromeSyncStorage = async (key = mainMemoryKey) => {
+  return CDBMStorage.getFromChromeSyncStorage(key);
 };
 
+/**
+ * Persists payload in chrome sync storage.
+ * @param {any} data
+ * @param {{ key?: string, array?: boolean }} [options]
+ * @returns {Promise<boolean>}
+ */
 const saveToChromeSyncStorage = async (data, { key = mainMemoryKey, array = true } = {}) => {
-    if(!Array.isArray(data) && array){
-        data = [];
-    }
-    return new Promise((resolve) => {
-        chrome.storage.sync.set({ [key]: JSON.stringify(data) }, () => {
-            console.log(`Data (${key}) is saved`);
-            resolve(true);
-        });
-    });
+  return CDBMStorage.saveToChromeSyncStorage(data, { key, array });
 };
 
-
-const removeFromChromeSyncStorage = async (key=mainMemoryKey) => {
-    return new Promise((resolve) => {
-        chrome.storage.sync.remove([key], () => {
-            console.log(`Data (${key}) is removed`);
-            resolve(true);
-        });
-    });
+/**
+ * Removes a key from chrome sync storage.
+ * @param {string} [key]
+ * @returns {Promise<boolean>}
+ */
+const removeFromChromeSyncStorage = async (key = mainMemoryKey) => {
+  return CDBMStorage.removeFromChromeSyncStorage(key);
 };
 
-const getFromChromeLocalStorage = async (key=mainMemoryKey) => {
-    return new Promise((resolve) => {
-        chrome.storage.local.get([key], (result) => {
-            const dataString = result[key] || "[]";
-            const data = JSON.parse(dataString);
-            resolve(data);
-        });
+/**
+ * Reads data from chrome local storage.
+ * @param {string} [key]
+ * @returns {Promise<any>}
+ */
+const getFromChromeLocalStorage = async (key = mainMemoryKey) => {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([key], (result) => {
+      const dataString = result[key] || "[]";
+      const data = JSON.parse(dataString);
+      resolve(data);
     });
+  });
 };
 
-const saveToChromeLocalStorage = async (data, key=mainMemoryKey) => {
-    if(!Array.isArray(data)){
-        data=[];
-    }
-    return new Promise((resolve) => {
-        chrome.storage.local.set({ [key]: JSON.stringify(data) }, () => {
-            console.log(`Data (${key}) is saved in local storage`);
-            resolve(true);
-        });
+/**
+ * Persists payload in chrome local storage.
+ * @param {any} data
+ * @param {string} [key]
+ * @returns {Promise<boolean>}
+ */
+const saveToChromeLocalStorage = async (data, key = mainMemoryKey) => {
+  if (!Array.isArray(data)) {
+    data = [];
+  }
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ [key]: JSON.stringify(data) }, () => {
+      console.log(`Data (${key}) is saved in local storage`);
+      resolve(true);
     });
+  });
 };
 
-const removeFromChromeLocalStorage = async (key=mainMemoryKey) => {
-    return new Promise((resolve) => {
-        chrome.storage.local.remove([key], () => {
-            console.log(`Data (${key}) is removed from local storage`);
-            resolve(true);
-        });
+/**
+ * Removes key from chrome local storage.
+ * @param {string} [key]
+ * @returns {Promise<boolean>}
+ */
+const removeFromChromeLocalStorage = async (key = mainMemoryKey) => {
+  return new Promise((resolve) => {
+    chrome.storage.local.remove([key], () => {
+      console.log(`Data (${key}) is removed from local storage`);
+      resolve(true);
     });
+  });
 };
 
+/**
+ * Shows extension notification.
+ * @param {string} notificationMessage
+ * @returns {void}
+ */
 const triggerChromeNotification = (notificationMessage) => {
-    const options = {
-        type: 'basic',
-        title: 'Countdown timer by Michal',
-      message: notificationMessage,
-      iconUrl: 'logos/logo128.png', // Zmień ścieżkę do odpowiedniego obrazka ikony
-    };
-  
-    chrome.notifications.create(options, (notificationId) => {
-      if (chrome.runtime.lastError) {
-        console.error('Error creating notification:', chrome.runtime.lastError.message);
-        return false;
+  return CDBMNotifications.triggerChromeNotification(notificationMessage);
+};
+
+/**
+ * Creates a browser tab.
+ * @param {string} [url]
+ * @returns {Promise<chrome.tabs.Tab>}
+ */
+const createTab = async (url = "") => {
+  return new Promise((resolve) => {
+    if (url === "") {
+      chrome.tabs.create({}, (tab) => {
+        resolve(tab);
+      });
+    } else {
+      chrome.tabs.create({ url }, (tab) => {
+        resolve(tab);
+      });
+    }
+  });
+};
+
+/**
+ * Closes the active tab or first tab matching URL.
+ * @param {string} [url]
+ * @returns {Promise<boolean>}
+ */
+const closeTab = async (url = "") => {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabToClose = tabs[0];
+      if (url === "") {
+        chrome.tabs.remove(tabToClose.id, () => {
+          resolve(true);
+        });
       } else {
-        console.log('Notification created with ID:', notificationId);
-        return true;
+        chrome.tabs.query({ url }, (matchingTabs) => {
+          if (matchingTabs.length > 0) {
+            chrome.tabs.remove(matchingTabs[0].id, () => {
+              resolve(true);
+            });
+          } else {
+            resolve(false);
+          }
+        });
       }
     });
-  };
-
-const createTab = async (url = "") => {
-    return new Promise((resolve) => {
-        if (url === "") {
-            chrome.tabs.create({}, (tab) => {
-                resolve(tab);
-            });
-        } else {
-            chrome.tabs.create({ url }, (tab) => {
-                resolve(tab);
-            });
-        }
-    });
+  });
 };
 
-const closeTab = async (url = "") => {
-    return new Promise((resolve) => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const tabToClose = tabs[0];
-            if (url === "") {
-                chrome.tabs.remove(tabToClose.id, () => {
-                    resolve(true);
-                });
-            } else {
-                chrome.tabs.query({ url }, (matchingTabs) => {
-                    if (matchingTabs.length > 0) {
-                        chrome.tabs.remove(matchingTabs[0].id, () => {
-                            resolve(true);
-                        });
-                    } else {
-                        resolve(false);
-                    }
-                });
-            }
-        });
-    });
-};
-
-
+/**
+ * Checks whether an alarm exists.
+ * @param {string} name
+ * @returns {Promise<boolean>}
+ */
 const checkIfAlarmExists = async (name) => {
-    return new Promise((resolve) => {
-        chrome.alarms.get(name, (alarm) => {
-            resolve(!!alarm);
-        });
+  return new Promise((resolve) => {
+    chrome.alarms.get(name, (alarm) => {
+      resolve(!!alarm);
     });
+  });
 };
 
+/**
+ * Creates a periodic chrome alarm.
+ * @param {string} name
+ * @param {number} delayInMinutes
+ * @param {number} periodInMinutes
+ * @returns {Promise<boolean>}
+ */
 const createAlarm = async (name, delayInMinutes, periodInMinutes) => {
-    try {
-        await chrome.alarms.create(name, { delayInMinutes, periodInMinutes });
-        return true;
-    } catch (error) {
-        console.error('Error creating alarm:', error);
-        return false;
-    }
+  try {
+    await chrome.alarms.create(name, { delayInMinutes, periodInMinutes });
+    return true;
+  } catch (error) {
+    console.error("Error creating alarm:", error);
+    return false;
+  }
 };
 
-const setAlarmIfNotExist = () => {
-    if(!checkIfAlarmExists("timers")){
-        createAlarm("timers", 1, 1);
-        console.log("Alarm is set");
-    }
-}
+/**
+ * Ensures the timers alarm exists.
+ * @returns {Promise<void>}
+ */
+const setAlarmIfNotExist = async () => {
+  if (!(await checkIfAlarmExists("timers"))) {
+    await createAlarm("timers", 1, 1);
+    console.log("Alarm is set");
+  }
+};
 
+/**
+ * Removes an alarm by name.
+ * @param {string} name
+ * @returns {Promise<boolean>}
+ */
 const removeAlarm = (name) => {
-    return new Promise((resolve) => {
-        chrome.alarms.clear(name, (wasCleared) => {
-            resolve(wasCleared);
-        });
+  return new Promise((resolve) => {
+    chrome.alarms.clear(name, (wasCleared) => {
+      resolve(wasCleared);
     });
+  });
 };
 
 //Update JSON
 
+/**
+ * Runs storage schema migration for saved timers.
+ * @returns {Promise<{changed: boolean, timers: any[]}>}
+ */
 const updateTimers = async () => {
-    const timers = await getFromChromeSyncStorage();
-    const updated = [];
-    timers.forEach(e => {
-        if(!e.hasOwnProperty('recurring')){
-            e["recurring"] = {
-                "active": true,
-                "every": 1,
-                "time_unit": "week"
-            }
-            updated.push(true);
-        }
-    })
-    if(updated.includes(true)){
-        console.log(timers);
-        saveToChromeSyncStorage(timers);
-    }
-}
+  return CDBMStorage.ensureTimerStorageSchema();
+};
