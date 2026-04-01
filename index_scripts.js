@@ -79,10 +79,6 @@ const toLocalISOString = (date) => {
   return CDBMCore.toLocalISOString(date);
 };
 
-const setDataFormat = (fieldType, timestamp) => {
-  return CDBMCore.setDataFormat(fieldType, timestamp);
-};
-
 const addEditForm = (timers, timerID) => {
   dialog.innerHTML = null;
   dialog.showModal();
@@ -169,9 +165,6 @@ const addEditForm = (timers, timerID) => {
   nowButton.appendChild(nowButtonText);
   nowButton.addEventListener("click", () => {
     if (startDateInput.type === "datetime-local") {
-      startDateInput.value = setDataFormat("datetime-local");
-    } else {
-      startDateInput.value = setDataFormat("date");
     }
   });
   nowButton.classList.add(
@@ -873,7 +866,7 @@ document.getElementById("aboutPlugin").addEventListener("click", () => {
   descriptionLinks.classList.add("margin-top-5");
 
   const repositoryLink = document.createElement("a");
-  repositoryLink.href = "https://github.com/mjfutera/Countdowns---Chrome-extension";
+  repositoryLink.href = "https://github.com/mjfutera/Countdowns-Chrome-extension";
   repositoryLink.target = "_blank";
   repositoryLink.innerText = "Public repository";
 

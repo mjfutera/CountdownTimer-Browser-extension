@@ -8,7 +8,7 @@ Countdowns is a Chrome extension for tracking important events with clean, visua
 
 ## Links
 
-- Public repository: https://github.com/mjfutera/Countdowns---Chrome-extension
+- Public repository: https://github.com/mjfutera/Countdowns-Chrome-extension
 - Project page: https://michalfutera.pro/my-projects/countdown-timer-chrome-extension/
 - Author website: https://michalfutera.pro
 - Telegram: https://t.me/MichalFuteraPro
@@ -20,7 +20,7 @@ Countdowns is a Chrome extension for tracking important events with clean, visua
 		<img src="logos/mfpro.png" alt="MichalFutera.pro" width="44" />
 	</a>
 	&nbsp;
-	<a href="https://github.com/mjfutera/Countdowns---Chrome-extension" target="_blank" rel="noopener noreferrer">
+	<a href="https://github.com/mjfutera/Countdowns-Chrome-extension" target="_blank" rel="noopener noreferrer">
 		<img src="logos/socialMedia/gitHub.png" alt="GitHub" width="44" />
 	</a>
 	&nbsp;

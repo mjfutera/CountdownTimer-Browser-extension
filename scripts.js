@@ -21,7 +21,7 @@ const socialMediaArray = [
   {
     icon: "gitHub.png",
     name: "GitHub",
-    link: "https://github.com/mjfutera/Countdowns---Chrome-extension",
+    link: "https://github.com/mjfutera/Countdowns-Chrome-extension",
     alt: "All my programming repositories",
   },
   {
