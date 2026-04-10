@@ -1,7 +1,11 @@
 node_modules/
 
+# WXT build output
+.output/
+.wxt/
+
 # build artifacts
-dist/*.zip
+dist/
 
 # local logs
 npm-debug.log*

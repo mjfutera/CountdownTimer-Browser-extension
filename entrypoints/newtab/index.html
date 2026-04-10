@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My New Tab</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="bg-myWhite padding-10 border-radius-10 main-block cdbm_timers" id="cdbm_timers">
+      <div id="cdbm_timers_active"></div>
+    </div>
+    <div
+      class="bg-myWhite padding-10 border-radius-10 main-block text-middle"
+      style="flex-direction: row; gap: 5px"
+    >
+      <span class="links cursor-pointer" id="byMichalFutera">&copy; by Michal Futera</span>
+      ||<span class="links cursor-pointer" id="aboutPlugin">About plugin</span> ||<span
+        id="bigReset"
+        class="links cursor-pointer"
+        >Reset plugin</span
+      >
+    </div>
+    <dialog id="mainPopUp" class="border-radius-10" style="max-width: 50%"></dialog>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
