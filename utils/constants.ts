@@ -1,5 +1,5 @@
 export const EXTENSION_NAME = "Countdown timer by Michal";
-export const EXTENSION_VERSION = "1.1.3";
+export const EXTENSION_VERSION = "2.0.0";
 
 export const AUTHOR_BRAND = {
   icon: "mfpro.png",
@@ -28,7 +28,7 @@ export const SOCIAL_MEDIA: SocialMediaEntry[] = [
   {
     icon: "gitHub.png",
     name: "GitHub",
-    link: "https://github.com/mjfutera/Countdowns-Chrome-extension",
+    link: "https://github.com/mjfutera/CountdownTimer-Browser-extension",
     alt: "All my programming repositories",
   },
   {

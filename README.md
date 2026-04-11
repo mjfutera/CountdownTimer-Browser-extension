@@ -1,14 +1,14 @@
 # Countdowns - Chrome Extension
 
 <p align="center">
-	<img src="logos/logo.png" alt="Countdowns logo" width="128" />
+	<img src="public/logos/logo.png" alt="Countdowns logo" width="128" />
 </p>
 
 Countdowns is a Chrome extension for tracking important events with clean, visual countdown timers right on your New Tab page.
 
 ## Links
 
-- Public repository: https://github.com/mjfutera/Countdowns-Chrome-extension
+- Public repository: https://github.com/mjfutera/CountdownTimer-Browser-extension
 - Project page: https://michalfutera.pro/my-projects/countdown-timer-chrome-extension/
 - Author website: https://michalfutera.pro
 - Telegram: https://t.me/MichalFuteraPro
@@ -17,31 +17,31 @@ Countdowns is a Chrome extension for tracking important events with clean, visua
 
 <p>
 	<a href="https://michalfutera.pro" target="_blank" rel="noopener noreferrer">
-		<img src="logos/mfpro.png" alt="MichalFutera.pro" width="44" />
+		<img src="public/logos/mfpro.png" alt="MichalFutera.pro" width="44" />
 	</a>
 	&nbsp;
-	<a href="https://github.com/mjfutera/Countdowns-Chrome-extension" target="_blank" rel="noopener noreferrer">
-		<img src="logos/socialMedia/gitHub.png" alt="GitHub" width="44" />
+	<a href="https://github.com/mjfutera/CountdownTimer-Browser-extension" target="_blank" rel="noopener noreferrer">
+		<img src="public/logos/socialMedia/gitHub.png" alt="GitHub" width="44" />
 	</a>
 	&nbsp;
 	<a href="https://www.linkedin.com/in/michalfutera/" target="_blank" rel="noopener noreferrer">
-		<img src="logos/socialMedia/linkedIn.png" alt="LinkedIn" width="44" />
+		<img src="public/logos/socialMedia/linkedIn.png" alt="LinkedIn" width="44" />
 	</a>
 	&nbsp;
 	<a href="https://twitter.com/mjfutera" target="_blank" rel="noopener noreferrer">
-		<img src="logos/socialMedia/twitter.png" alt="X (Twitter)" width="44" />
+		<img src="public/logos/socialMedia/twitter.png" alt="X (Twitter)" width="44" />
 	</a>
 	&nbsp;
 	<a href="https://linktr.ee/mjfutera" target="_blank" rel="noopener noreferrer">
-		<img src="logos/socialMedia/linkTree.png" alt="Linktree" width="44" />
+		<img src="public/logos/socialMedia/linkTree.png" alt="Linktree" width="44" />
 	</a>
 	&nbsp;
 	<a href="https://www.buymeacoffee.com/mjfutera/" target="_blank" rel="noopener noreferrer">
-		<img src="logos/socialMedia/buyMeACoffee.png" alt="Buy Me A Coffee" width="44" />
+		<img src="public/logos/socialMedia/buyMeACoffee.png" alt="Buy Me A Coffee" width="44" />
 	</a>
 	&nbsp;
 	<a href="https://t.me/MichalFuteraPro" target="_blank" rel="noopener noreferrer">
-		<img src="logos/socialMedia/telegram.png" alt="Telegram" width="44" />
+		<img src="public/logos/socialMedia/telegram.png" alt="Telegram" width="44" />
 	</a>
 </p>
 

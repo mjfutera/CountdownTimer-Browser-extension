@@ -862,12 +862,12 @@ document.getElementById("aboutPlugin")!.addEventListener("click", () => {
   secondTr_firstTd.innerText = "Description:";
   secondTr.appendChild(secondTr_firstTd);
   const secondTr_secondTd = document.createElement("td");
-  secondTr_secondTd.innerText = "Create, manage, and be notified for important events.";
+  secondTr_secondTd.innerText = "Create, manage, and be notified for important events. Since v2.0.0 built with the WXT framework.";
   const descriptionLinks = document.createElement("div");
   descriptionLinks.classList.add("margin-top-5");
 
   const repositoryLink = document.createElement("a");
-  repositoryLink.href = "https://github.com/mjfutera/Countdowns-Chrome-extension";
+  repositoryLink.href = "https://github.com/mjfutera/CountdownTimer-Browser-extension";
   repositoryLink.target = "_blank";
   repositoryLink.innerText = "Public repository";
   const separator = document.createElement("span");
@@ -876,18 +876,9 @@ document.getElementById("aboutPlugin")!.addEventListener("click", () => {
   projectPageLink.href = "https://michalfutera.pro/my-projects/countdown-timer-chrome-extension/";
   projectPageLink.target = "_blank";
   projectPageLink.innerText = "Project page";
-  const separator2 = document.createElement("span");
-  separator2.innerText = " | ";
-  const telegramLink = document.createElement("a");
-  telegramLink.href = "https://t.me/MichalFuteraPro";
-  telegramLink.target = "_blank";
-  telegramLink.innerText = "Telegram";
-
   descriptionLinks.appendChild(repositoryLink);
   descriptionLinks.appendChild(separator);
   descriptionLinks.appendChild(projectPageLink);
-  descriptionLinks.appendChild(separator2);
-  descriptionLinks.appendChild(telegramLink);
   secondTr_secondTd.appendChild(descriptionLinks);
   secondTr.appendChild(secondTr_secondTd);
   table.appendChild(secondTr);
@@ -936,14 +927,6 @@ document.getElementById("aboutPlugin")!.addEventListener("click", () => {
     socialMediaIcons.appendChild(image);
   });
   socialMedia.appendChild(socialMediaIcons);
-
-  const telegramSocialLink = document.createElement("a");
-  telegramSocialLink.href = "https://t.me/MichalFuteraPro";
-  telegramSocialLink.target = "_blank";
-  telegramSocialLink.style.display = "block";
-  telegramSocialLink.style.marginTop = "8px";
-  telegramSocialLink.innerText = "Telegram: @MichalFuteraPro";
-  socialMedia.appendChild(telegramSocialLink);
   dialog.appendChild(socialMedia);
 
   const closeButton = document.createElement("div");
