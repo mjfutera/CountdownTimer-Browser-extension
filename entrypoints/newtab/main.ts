@@ -873,7 +873,7 @@ document.getElementById("aboutPlugin")!.addEventListener("click", () => {
   const separator = document.createElement("span");
   separator.innerText = " | ";
   const projectPageLink = document.createElement("a");
-  projectPageLink.href = "https://michalfutera.pro/my-projects/countdown-timer-chrome-extension/";
+  projectPageLink.href = "https://michalfutera.pro/my-projects/countdown-timer-browser-extension/";
   projectPageLink.target = "_blank";
   projectPageLink.innerText = "Project page";
   descriptionLinks.appendChild(repositoryLink);

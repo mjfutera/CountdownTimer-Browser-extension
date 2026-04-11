@@ -9,3 +9,7 @@ dist/
 
 # local logs
 npm-debug.log*
+
+# secrets
+.env
+.env.*

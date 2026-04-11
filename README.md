@@ -1,10 +1,10 @@
-# Countdowns - Chrome Extension
+# Countdown Timer - Browser Extension
 
 <p align="center">
 	<img src="public/logos/logo.png" alt="Countdowns logo" width="128" />
 </p>
 
-Countdowns is a Chrome extension for tracking important events with clean, visual countdown timers right on your New Tab page.
+Countdown Timer is a cross-browser extension for tracking important events with clean, visual countdown timers right on your New Tab page. Built with the [WXT framework](https://wxt.dev/) and TypeScript, supporting Chrome, Firefox, and Edge.
 
 ## Links
 
@@ -52,20 +52,21 @@ Countdowns is a Chrome extension for tracking important events with clean, visua
 - Progress indicators and clean timer cards
 - Browser notifications for timer milestones
 - Persistent storage and schema migration support
+- Cross-browser support (Chrome, Firefox, Edge)
 
 ## Stack and Structure
 
-- Manifest V3 Chrome extension
-- Vanilla JavaScript, HTML, CSS
-- `core.js` for date/time logic
-- `storage.js` for persistence and migrations
-- `ui.js` for rendering helpers
-- `notifications.js` for sound/notifications
-- `background.js` for alarms lifecycle
+- [WXT](https://wxt.dev/) framework with TypeScript
+- Manifest V3
+- Vite bundler
+- `utils/core.ts` for date/time logic
+- `utils/storage.ts` for persistence and migrations
+- `utils/ui.ts` for rendering helpers
+- `utils/notifications.ts` for sound/notifications
+- `entrypoints/background.ts` for alarms lifecycle
+- `entrypoints/newtab/` for the New Tab page
 
 ## Quality
 
-- ESLint + Prettier
-- Unit tests in `tests/core.test.js`
-- CI workflow in `.github/workflows/ci.yml`
-- Packaging script in `tools/package-extension.ps1`
+- Prettier
+- Automated publishing via `wxt submit`
