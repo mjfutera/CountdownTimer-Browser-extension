@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Countdown Timer – Browser Extension by Michał Futera</title>
+  <meta name="description" content="Free browser extension that puts beautiful countdown timers on every new tab. Track deadlines, meetings, and events. Available for Chrome, Firefox, and Opera." />
+  <link rel="icon" href="../public/logos/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- HERO -->
+  <section style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:80px 24px 70px;background:linear-gradient(160deg,#f0f7ff 0%,#e8f3fd 55%,#f5f9fe 100%);font-family:'Manrope','Roboto',sans-serif;color:#1a2e3b;-webkit-font-smoothing:antialiased;">
+    <img src="../public/logos/logo128.png" alt="Countdown Timer logo" style="width:104px;height:104px;margin-bottom:32px;filter:drop-shadow(0 12px 28px rgba(21,129,199,0.3));" />
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);font-weight:700;margin:0 0 20px;line-height:1.15;color:#0d1f35;max-width:820px;">
+      Never Miss a Thing.<br />
+      <span style="color:#1581c7;">Track Everything.</span>
+    </h1>
+    <p style="font-size:clamp(1rem,2vw,1.2rem);color:#4a6e88;max-width:620px;line-height:1.75;margin:0 0 44px;">
+      Countdown Timer puts beautiful, visual countdowns right on your New Tab page.
+      Track deadlines, meetings, and important events — always one tab away, always free.
+    </p>
+    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">
+      <a href="https://chromewebstore.google.com" target="_blank" rel="noopener noreferrer"
+         style="display:flex;align-items:center;gap:10px;background:#ffffff;border:1px solid #c8ddf0;border-radius:12px;padding:11px 20px;text-decoration:none;color:#1a2e3b;font-weight:600;font-size:0.88rem;box-shadow:0 2px 8px rgba(21,129,199,0.08);">
+        <img src="https://cdn.simpleicons.org/googlechrome/1581c7" alt="Chrome" style="width:22px;height:22px;" />
+        Chrome
+      </a>
+      <a href="https://addons.mozilla.org" target="_blank" rel="noopener noreferrer"
+         style="display:flex;align-items:center;gap:10px;background:#ffffff;border:1px solid #c8ddf0;border-radius:12px;padding:11px 20px;text-decoration:none;color:#1a2e3b;font-weight:600;font-size:0.88rem;box-shadow:0 2px 8px rgba(21,129,199,0.08);">
+        <img src="https://cdn.simpleicons.org/firefox/ff7139" alt="Firefox" style="width:22px;height:22px;" />
+        Firefox
+      </a>
+      <a href="https://addons.opera.com" target="_blank" rel="noopener noreferrer"
+         style="display:flex;align-items:center;gap:10px;background:#ffffff;border:1px solid #c8ddf0;border-radius:12px;padding:11px 20px;text-decoration:none;color:#1a2e3b;font-weight:600;font-size:0.88rem;box-shadow:0 2px 8px rgba(21,129,199,0.08);">
+        <img src="https://cdn.simpleicons.org/opera/ff1b2d" alt="Opera" style="width:22px;height:22px;" />
+        Opera
+      </a>
+    </div>
+    <p style="margin:0;color:#7a9db5;font-size:0.82rem;">Free &amp; open-source · No account needed</p>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" style="padding:90px 24px;background:#ffffff;font-family:'Manrope','Roboto',sans-serif;color:#1a2e3b;-webkit-font-smoothing:antialiased;">
+    <div style="max-width:1100px;margin:0 auto;">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;text-align:center;color:#0d1f35;margin:0 0 10px;">Everything You Need</h2>
+      <p style="text-align:center;color:#6a8fa8;font-size:0.98rem;margin:0 0 56px;">Simple, powerful, and always one tab away.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;">
+
+        <div style="background:#f5faff;border:1px solid #c8ddf0;border-radius:16px;padding:28px 24px;text-align:center;">
+          <div style="font-size:2.2rem;margin-bottom:12px;">&#9201;</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:#1067a3;margin:0 0 10px;">Multiple Timers</h3>
+          <p style="color:#4a6e88;font-size:0.92rem;line-height:1.65;margin:0;">Create as many countdowns as you need, all visible at once on your New Tab page.</p>
+        </div>
+
+        <div style="background:#f5faff;border:1px solid #c8ddf0;border-radius:16px;padding:28px 24px;text-align:center;">
+          <div style="font-size:2.2rem;margin-bottom:12px;">&#128276;</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:#1067a3;margin:0 0 10px;">Sound Notifications</h3>
+          <p style="color:#4a6e88;font-size:0.92rem;line-height:1.65;margin:0;">Get a browser notification with a bell sound alert the moment your timer expires.</p>
+        </div>
+
+        <div style="background:#f5faff;border:1px solid #c8ddf0;border-radius:16px;padding:28px 24px;text-align:center;">
+          <div style="font-size:2.2rem;margin-bottom:12px;">&#128257;</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:#1067a3;margin:0 0 10px;">Repeating Timers</h3>
+          <p style="color:#4a6e88;font-size:0.92rem;line-height:1.65;margin:0;">Set timers to repeat automatically. Perfect for recurring work blocks and daily routines.</p>
+        </div>
+
+        <div style="background:#f5faff;border:1px solid #c8ddf0;border-radius:16px;padding:28px 24px;text-align:center;">
+          <div style="font-size:2.2rem;margin-bottom:12px;">&#127757;</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:#1067a3;margin:0 0 10px;">Timezone Support</h3>
+          <p style="color:#4a6e88;font-size:0.92rem;line-height:1.65;margin:0;">Set events in any timezone. Great for remote teams and international deadlines.</p>
+        </div>
+
+        <div style="background:#f5faff;border:1px solid #c8ddf0;border-radius:16px;padding:28px 24px;text-align:center;">
+          <div style="font-size:2.2rem;margin-bottom:12px;">&#128279;</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:#1067a3;margin:0 0 10px;">Auto-Open URL</h3>
+          <p style="color:#4a6e88;font-size:0.92rem;line-height:1.65;margin:0;">Automatically open a website when the timer ends. Ideal for online meetings and events.</p>
+        </div>
+
+        <div style="background:#f5faff;border:1px solid #c8ddf0;border-radius:16px;padding:28px 24px;text-align:center;">
+          <div style="font-size:2.2rem;margin-bottom:12px;">&#8597;</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:#1067a3;margin:0 0 10px;">Drag to Reorder</h3>
+          <p style="color:#4a6e88;font-size:0.92rem;line-height:1.65;margin:0;">Organize timers by priority. Drag up or down to always keep the most important ones first.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASES -->
+  <section style="padding:80px 24px;background:#f7fafd;font-family:'Manrope','Roboto',sans-serif;color:#1a2e3b;-webkit-font-smoothing:antialiased;">
+    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:center;flex-wrap:wrap;gap:18px;">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#0d1f35;margin:0 0 10px;width:100%;">Built for Real Life</h2>
+      <p style="color:#6a8fa8;font-size:0.98rem;margin:0 0 48px;width:100%;">From work to wellness, Countdown Timer fits every routine.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,200px);gap:18px;">
+
+        <div style="background:#fffbea;border:1px solid #e8d96a;border-radius:14px;padding:20px 18px;text-align:center;">
+          <p style="margin:0;color:#7a5f00;font-weight:700;font-size:0.93rem;">&#9200; Focus sessions</p>
+          <p style="margin:6px 0 0;color:#7a7a5a;font-size:0.85rem;">25-min Pomodoro blocks</p>
+        </div>
+
+        <div style="background:#fffbea;border:1px solid #e8d96a;border-radius:14px;padding:20px 18px;text-align:center;">
+          <p style="margin:0;color:#7a5f00;font-weight:700;font-size:0.93rem;">&#127859; Cooking timers</p>
+          <p style="margin:6px 0 0;color:#7a7a5a;font-size:0.85rem;">30 min to cook dinner</p>
+        </div>
+
+        <div style="background:#fffbea;border:1px solid #e8d96a;border-radius:14px;padding:20px 18px;text-align:center;">
+          <p style="margin:0;color:#7a5f00;font-weight:700;font-size:0.93rem;">&#128197; Important dates</p>
+          <p style="margin:6px 0 0;color:#7a7a5a;font-size:0.85rem;">Birthdays &amp; anniversaries</p>
+        </div>
+
+        <div style="background:#fffbea;border:1px solid #e8d96a;border-radius:14px;padding:20px 18px;text-align:center;">
+          <p style="margin:0;color:#7a5f00;font-weight:700;font-size:0.93rem;">&#127947; Workout breaks</p>
+          <p style="margin:6px 0 0;color:#7a7a5a;font-size:0.85rem;">15-min yoga &amp; stretching</p>
+        </div>
+
+        <div style="background:#fffbea;border:1px solid #e8d96a;border-radius:14px;padding:20px 18px;text-align:center;">
+          <p style="margin:0;color:#7a5f00;font-weight:700;font-size:0.93rem;">&#128203; Deadlines</p>
+          <p style="margin:6px 0 0;color:#7a7a5a;font-size:0.85rem;">Project &amp; work milestones</p>
+        </div>
+
+        <div style="background:#fffbea;border:1px solid #e8d96a;border-radius:14px;padding:20px 18px;text-align:center;">
+          <p style="margin:0;color:#7a5f00;font-weight:700;font-size:0.93rem;">&#9992; Travel countdowns</p>
+          <p style="margin:6px 0 0;color:#7a7a5a;font-size:0.85rem;">Days until your next trip</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENSHOTS -->
+  <section id="screenshots" style="padding:90px 24px;background:#ffffff;font-family:'Manrope','Roboto',sans-serif;color:#1a2e3b;-webkit-font-smoothing:antialiased;">
+    <div style="max-width:1200px;margin:0 auto;display:flex;flex-direction:column;align-items:center;">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;text-align:center;color:#0d1f35;margin:0 0 10px;width:100%;">See It in Action</h2>
+      <p style="text-align:center;color:#6a8fa8;font-size:0.98rem;margin:0 0 48px;width:100%;">Click any screenshot to zoom in.</p>
+      <div style="display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:16px;">
+        <img src="../screenshots/1.png" alt="Multiple countdown timers overview" onclick="openLightbox(this.src,this.alt)" style="width:300px;height:auto;border-radius:12px;border:1px solid #d4e8f7;box-shadow:0 6px 24px rgba(21,129,199,0.12);cursor:pointer;flex-shrink:0;" />
+        <img src="../screenshots/2.png" alt="Timer management with reorder" onclick="openLightbox(this.src,this.alt)" style="width:300px;height:auto;border-radius:12px;border:1px solid #d4e8f7;box-shadow:0 6px 24px rgba(21,129,199,0.12);cursor:pointer;flex-shrink:0;" />
+        <img src="../screenshots/3.png" alt="Add new timer form" onclick="openLightbox(this.src,this.alt)" style="width:300px;height:auto;border-radius:12px;border:1px solid #d4e8f7;box-shadow:0 6px 24px rgba(21,129,199,0.12);cursor:pointer;flex-shrink:0;" />
+        <img src="../screenshots/4.png" alt="Timer with progress bar" onclick="openLightbox(this.src,this.alt)" style="width:300px;height:auto;border-radius:12px;border:1px solid #d4e8f7;box-shadow:0 6px 24px rgba(21,129,199,0.12);cursor:pointer;flex-shrink:0;" />
+        <img src="../screenshots/5.png" alt="Expired timer state" onclick="openLightbox(this.src,this.alt)" style="width:300px;height:auto;border-radius:12px;border:1px solid #d4e8f7;box-shadow:0 6px 24px rgba(21,129,199,0.12);cursor:pointer;flex-shrink:0;" />
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL / CTA -->
+  <section id="install" style="padding:100px 24px;background:linear-gradient(160deg,#f0f7ff,#e4f0fb);text-align:center;font-family:'Manrope','Roboto',sans-serif;color:#1a2e3b;-webkit-font-smoothing:antialiased;">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:#0d1f35;margin:0 0 16px;">Ready to Start Counting?</h2>
+    <p style="color:#4a6e88;font-size:1rem;max-width:540px;margin:0 auto 44px;line-height:1.75;">
+      Free, open-source, and available on all major browsers. Install in seconds — no account, no signup.
+    </p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:48px;">
+      <a href="https://chromewebstore.google.com" target="_blank" rel="noopener noreferrer"
+         style="display:flex;align-items:center;gap:12px;background:#ffffff;border:1px solid #c8ddf0;border-radius:14px;padding:14px 28px;text-decoration:none;color:#0d1f35;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;box-shadow:0 4px 14px rgba(21,129,199,0.1);">
+        <img src="https://cdn.simpleicons.org/googlechrome/1581c7" alt="Chrome" style="width:26px;height:26px;" />
+        Add to Chrome
+      </a>
+      <a href="https://addons.mozilla.org" target="_blank" rel="noopener noreferrer"
+         style="display:flex;align-items:center;gap:12px;background:#ffffff;border:1px solid #c8ddf0;border-radius:14px;padding:14px 28px;text-decoration:none;color:#0d1f35;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;box-shadow:0 4px 14px rgba(21,129,199,0.1);">
+        <img src="https://cdn.simpleicons.org/firefox/ff7139" alt="Firefox" style="width:26px;height:26px;" />
+        Add to Firefox
+      </a>
+      <a href="https://addons.opera.com" target="_blank" rel="noopener noreferrer"
+         style="display:flex;align-items:center;gap:12px;background:#ffffff;border:1px solid #c8ddf0;border-radius:14px;padding:14px 28px;text-decoration:none;color:#0d1f35;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;box-shadow:0 4px 14px rgba(21,129,199,0.1);">
+        <img src="https://cdn.simpleicons.org/opera/ff1b2d" alt="Opera" style="width:26px;height:26px;" />
+        Add to Opera
+      </a>
+    </div>
+    <a href="https://github.com/mjfutera/CountdownTimer-Browser-extension" target="_blank" rel="noopener noreferrer"
+       style="display:inline-flex;align-items:center;gap:8px;color:#7a9db5;text-decoration:none;font-size:0.9rem;font-weight:600;">
+      <img src="../public/logos/socialMedia/gitHub.png" alt="GitHub" style="width:18px;height:18px;opacity:0.5;" />
+      View source on GitHub
+    </a>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9999;align-items:center;justify-content:center;padding:24px;">
+    <img id="lightbox-img" src="" alt="" style="max-width:92vw;max-height:88vh;border-radius:10px;box-shadow:0 20px 80px rgba(0,0,0,0.7);display:block;" />
+    <button onclick="closeLightbox()" style="position:fixed;top:20px;right:28px;background:none;border:none;color:#ffffff;font-size:2.2rem;cursor:pointer;line-height:1;opacity:0.8;">&#x2715;</button>
+  </div>
+
+  <script>
+    function openLightbox(src, alt) {
+      var lb = document.getElementById('lightbox');
+      var img = document.getElementById('lightbox-img');
+      img.src = src;
+      img.alt = alt;
+      lb.style.display = 'flex';
+      document.addEventListener('keydown', onLightboxKey);
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+      document.removeEventListener('keydown', onLightboxKey);
+    }
+    function onLightboxKey(e) {
+      if (e.key === 'Escape') closeLightbox();
+    }
+  </script>
+
+</body>
+</html>
