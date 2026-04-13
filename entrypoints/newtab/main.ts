@@ -1161,7 +1161,7 @@ document.getElementById("aboutPlugin")!.addEventListener("click", () => {
   secondTr_firstTd.innerText = "Description:";
   secondTr.appendChild(secondTr_firstTd);
   const secondTr_secondTd = document.createElement("td");
-  secondTr_secondTd.innerText = "Create, manage, and be notified for important events. Since v2.0.0 built with the WXT framework.";
+  secondTr_secondTd.innerText = `Create, manage, and be notified for important events. Since v${EXTENSION_VERSION} built with the WXT framework.`;
   const descriptionLinks = document.createElement("div");
   descriptionLinks.classList.add("margin-top-5");
 
