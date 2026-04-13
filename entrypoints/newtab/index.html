@@ -7,21 +7,19 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div class="bg-myWhite padding-10 border-radius-10 main-block cdbm_timers" id="cdbm_timers">
+    <div class="bg-myWhite padding-10 border-radius-10 main-block cdbm_timers main-panel" id="cdbm_timers">
       <div id="cdbm_timers_active"></div>
     </div>
-    <div
-      class="bg-myWhite padding-10 border-radius-10 main-block text-middle"
-      style="flex-direction: row; gap: 5px"
-    >
+    <div class="bg-myWhite padding-10 border-radius-10 main-block text-middle footer-bar">
       <span class="links cursor-pointer" id="byMichalFutera">&copy; by Michal Futera</span>
       ||<span class="links cursor-pointer" id="aboutPlugin">About plugin</span> ||<span
         id="bigReset"
         class="links cursor-pointer"
         >Reset plugin</span
       >
+      ||<span id="settingsLink" class="links cursor-pointer">Setting</span>
     </div>
-    <dialog id="mainPopUp" class="border-radius-10" style="max-width: 50%"></dialog>
+    <dialog id="mainPopUp" class="border-radius-10 dialog-shell"></dialog>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

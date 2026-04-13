@@ -1,5 +1,5 @@
 export const EXTENSION_NAME = "Countdown timer by Michal";
-export const EXTENSION_VERSION = "2.0.0";
+export const EXTENSION_VERSION = "2.0.1";
 
 export const AUTHOR_BRAND = {
   icon: "mfpro.png",

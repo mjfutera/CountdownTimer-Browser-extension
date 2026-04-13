@@ -24,6 +24,146 @@ import {
 
 const dialog = document.getElementById("mainPopUp") as HTMLDialogElement;
 let timerTimeOut: ReturnType<typeof setTimeout>;
+let timersRenderRequestId = 0;
+
+type DisplayFormat = "days-only" | "full";
+type TimerUnitKey = "year" | "month" | "day" | "hour" | "minute" | "second";
+
+interface TimerUnit {
+  key: TimerUnitKey;
+  value: number;
+  label: string;
+}
+
+const DISPLAY_FORMAT_STORAGE_KEY = "cdbm_display_format";
+let selectedDisplayFormat: DisplayFormat = "days-only";
+
+function normalizeDisplayFormat(value: unknown): DisplayFormat {
+  return value === "full" ? "full" : "days-only";
+}
+
+async function loadDisplayFormat(): Promise<void> {
+  const result = await browser.storage.sync.get([DISPLAY_FORMAT_STORAGE_KEY]);
+  selectedDisplayFormat = normalizeDisplayFormat(result[DISPLAY_FORMAT_STORAGE_KEY]);
+}
+
+async function persistDisplayFormat(value: DisplayFormat): Promise<void> {
+  selectedDisplayFormat = value;
+  await browser.storage.sync.set({ [DISPLAY_FORMAT_STORAGE_KEY]: value });
+}
+
+function unitLabel(unit: TimerUnitKey, value: number): string {
+  const labels: Record<TimerUnitKey, [string, string]> = {
+    year: ["year", "years"],
+    month: ["month", "months"],
+    day: ["day", "days"],
+    hour: ["hour", "hours"],
+    minute: ["minute", "minutes"],
+    second: ["second", "seconds"],
+  };
+  const [singular, plural] = labels[unit];
+  return pluralize(value, singular, plural);
+}
+
+function getFullTimeBreakdown(currentTimestamp: number, endTimestamp: number): Record<TimerUnitKey, number> {
+  if (endTimestamp <= currentTimestamp) {
+    return { year: 0, month: 0, day: 0, hour: 0, minute: 0, second: 0 };
+  }
+
+  const end = new Date(endTimestamp);
+  let cursor = new Date(currentTimestamp);
+
+  let years = 0;
+  while (true) {
+    const candidate = new Date(cursor.getTime());
+    candidate.setFullYear(candidate.getFullYear() + 1);
+    if (candidate <= end) {
+      years += 1;
+      cursor = candidate;
+    } else {
+      break;
+    }
+  }
+
+  let months = 0;
+  while (true) {
+    const candidate = new Date(cursor.getTime());
+    candidate.setMonth(candidate.getMonth() + 1);
+    if (candidate <= end) {
+      months += 1;
+      cursor = candidate;
+    } else {
+      break;
+    }
+  }
+
+  const remainingMs = end.getTime() - cursor.getTime();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const hourMs = 60 * 60 * 1000;
+  const minuteMs = 60 * 1000;
+  const secondMs = 1000;
+
+  const days = Math.floor(remainingMs / dayMs);
+  const hours = Math.floor((remainingMs % dayMs) / hourMs);
+  const minutes = Math.floor((remainingMs % hourMs) / minuteMs);
+  const seconds = Math.floor((remainingMs % minuteMs) / secondMs);
+
+  return {
+    year: years,
+    month: months,
+    day: days,
+    hour: hours,
+    minute: minutes,
+    second: seconds,
+  };
+}
+
+function getTimerUnits(
+  currentTimestamp: number,
+  endTimestamp: number,
+  format: DisplayFormat
+): TimerUnit[] {
+  if (format === "days-only") {
+    const dayMs = 24 * 60 * 60 * 1000;
+    const value = Math.max(0, Math.ceil((endTimestamp - currentTimestamp) / dayMs));
+    return [{ key: "day", value, label: unitLabel("day", value) }];
+  }
+
+  const breakdown = getFullTimeBreakdown(currentTimestamp, endTimestamp);
+  return [
+    { key: "year", value: breakdown.year, label: unitLabel("year", breakdown.year) },
+    { key: "month", value: breakdown.month, label: unitLabel("month", breakdown.month) },
+    { key: "day", value: breakdown.day, label: unitLabel("day", breakdown.day) },
+    { key: "hour", value: breakdown.hour, label: unitLabel("hour", breakdown.hour) },
+    { key: "minute", value: breakdown.minute, label: unitLabel("minute", breakdown.minute) },
+    { key: "second", value: breakdown.second, label: unitLabel("second", breakdown.second) },
+  ];
+}
+
+function renderTimerUnits(container: HTMLElement, timerIndex: number, endTimestamp: number): void {
+  const units = getTimerUnits(Date.now(), endTimestamp, selectedDisplayFormat);
+  container.innerHTML = "";
+  container.classList.toggle("timer-units-days-only", selectedDisplayFormat === "days-only");
+
+  units.forEach((unit) => {
+    const unitWrapper = document.createElement("span");
+    unitWrapper.classList.add("column");
+
+    const valueField = document.createElement("span");
+    valueField.id = `${unit.key}Number-${timerIndex}`;
+    valueField.innerText = String(unit.value);
+    valueField.classList.add("text-middle", "text-bold", "font-size-4counter");
+    unitWrapper.appendChild(valueField);
+
+    const labelField = document.createElement("span");
+    labelField.id = `${unit.key}Subtitle-${timerIndex}`;
+    labelField.innerText = unit.label;
+    labelField.classList.add("text-middle");
+    unitWrapper.appendChild(labelField);
+
+    container.appendChild(unitWrapper);
+  });
+}
 
 function createTab(url = ""): void {
   if (url === "") {
@@ -133,6 +273,52 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   const edit = Array.isArray(timers) && Number.isInteger(timerID);
 
   const table = document.createElement("table");
+  table.classList.add("timer-form");
+  let repeatEveryInput: HTMLInputElement | null = null;
+  let repeatUnitSelect: HTMLSelectElement | null = null;
+
+  const getRepeatUnits = (withTime: boolean): string[] => {
+    return withTime
+      ? ["minute", "hour", "day", "week", "month", "year"]
+      : ["day", "week", "month", "year"];
+  };
+
+  const renderPeriodicityRow = (withTime: boolean, everyValue = 1, unitValue = "week") => {
+    document.getElementById("periodicity")?.remove();
+
+    const ninthTr = document.createElement("tr");
+    ninthTr.id = "periodicity";
+    const ninthTr_firstTd = document.createElement("td");
+    ninthTr_firstTd.innerText = "Every";
+    ninthTr.appendChild(ninthTr_firstTd);
+    const ninthTr_secondTd = document.createElement("td");
+    ninthTr_secondTd.classList.add("timer-form-inline");
+
+    const numberOfPeriods = document.createElement("input");
+    numberOfPeriods.type = "number";
+    numberOfPeriods.min = "1";
+    numberOfPeriods.step = "1";
+    numberOfPeriods.classList.add("padding-10", "border-radius-10");
+    numberOfPeriods.value = String(Math.max(1, Math.floor(everyValue)));
+    repeatEveryInput = numberOfPeriods;
+    ninthTr_secondTd.appendChild(numberOfPeriods);
+
+    const nameOfPeriods = document.createElement("select");
+    nameOfPeriods.classList.add("padding-10", "border-radius-10");
+    const periods = getRepeatUnits(withTime);
+    periods.forEach((period) => {
+      const singlePeriod = document.createElement("option");
+      singlePeriod.innerText = period;
+      singlePeriod.value = period;
+      nameOfPeriods.appendChild(singlePeriod);
+    });
+    nameOfPeriods.value = periods.includes(unitValue) ? unitValue : periods[0];
+    repeatUnitSelect = nameOfPeriods;
+    ninthTr_secondTd.appendChild(nameOfPeriods);
+
+    ninthTr.appendChild(ninthTr_secondTd);
+    table.appendChild(ninthTr);
+  };
 
   // Row 1: Title
   const firstTr = document.createElement("tr");
@@ -157,6 +343,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   firstTr_secondTd.appendChild(titleInput);
   firstTr.appendChild(firstTr_secondTd);
   const firstTr_thirdTd = document.createElement("td");
+  firstTr_thirdTd.classList.add("timer-form-meta");
   firstTr_thirdTd.setAttribute("id", "title_length");
   firstTr_thirdTd.innerText = "0/20";
   titleInput.addEventListener("input", () => {
@@ -183,6 +370,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   secondTr_firstTd.innerText = "Start date:";
   secondTr.appendChild(secondTr_firstTd);
   const secondTr_secondTd = document.createElement("td");
+  secondTr_secondTd.classList.add("timer-form-field");
   const startDateInput = document.createElement("input");
   startDateInput.id = "start_date";
   if (edit && timerID !== undefined) {
@@ -204,6 +392,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   secondTr.appendChild(secondTr_secondTd);
 
   const secondTr_thirdTd = document.createElement("td");
+  secondTr_thirdTd.classList.add("timer-form-action");
   const nowButton = document.createElement("button");
   const nowButtonImg = document.createElement("img");
   nowButtonImg.src = "/img/now.svg";
@@ -214,10 +403,20 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   nowButton.classList.add(
     "padding-10",
     "border-radius-10",
-    "myButton-myGold",
+    "myButton-dialog-warm",
     "myButton",
     "cursor-pointer"
   );
+  nowButton.type = "button";
+  nowButton.addEventListener("click", () => {
+    const nowTimestamp = Date.now();
+    if (startDateInput.type === "datetime-local") {
+      startDateInput.value = setDataFormat("datetime-local", nowTimestamp);
+    } else {
+      startDateInput.value = setDataFormat("date", nowTimestamp);
+    }
+    checker();
+  });
   secondTr_thirdTd.appendChild(nowButton);
   secondTr.appendChild(secondTr_thirdTd);
   table.appendChild(secondTr);
@@ -228,6 +427,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   thirdTr_firstTd.innerText = "End date";
   thirdTr.appendChild(thirdTr_firstTd);
   const thirdTr_secondTd = document.createElement("td");
+  thirdTr_secondTd.classList.add("timer-form-field");
   thirdTr_secondTd.colSpan = 2;
   const endDateInput = document.createElement("input");
   endDateInput.type = "date";
@@ -259,6 +459,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   fourthTr_firstTd.appendChild(labelForTimeFieldChanger);
   fourthTr.appendChild(fourthTr_firstTd);
   const fourthTr_secondTd = document.createElement("td");
+  fourthTr_secondTd.classList.add("timer-form-check");
   fourthTr_secondTd.colSpan = 2;
   const timeFieldChanger = document.createElement("input");
   timeFieldChanger.type = "checkbox";
@@ -285,6 +486,10 @@ function addEditForm(timers: Timer[], timerID?: number): void {
       if (startDateStr) startDateInput.value = startDateStr.split("T")[0];
       if (endDateStr) endDateInput.value = endDateStr.split("T")[0];
     }
+    const repeatInput = document.getElementById("repeat_input") as HTMLInputElement | null;
+    if (repeatInput?.checked) {
+      renderPeriodicityRow(target.checked, repeatEveryInput?.valueAsNumber || 1, repeatUnitSelect?.value || "week");
+    }
     checker();
   });
   fourthTr_secondTd.appendChild(timeFieldChanger);
@@ -305,12 +510,14 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   fifthTr_firstTd.appendChild(fifthTr_firstTd_secondSpan);
   fifthTr.appendChild(fifthTr_firstTd);
   const fifthTr_secondTd = document.createElement("td");
+  fifthTr_secondTd.classList.add("timer-form-field");
   const descriptionTextarea = document.createElement("textarea");
   descriptionTextarea.id = "description";
   descriptionTextarea.classList.add("padding-10", "border-radius-10");
   fifthTr_secondTd.appendChild(descriptionTextarea);
   fifthTr.appendChild(fifthTr_secondTd);
   const fifthTr_thirdTd = document.createElement("td");
+  fifthTr_thirdTd.classList.add("timer-form-meta");
   fifthTr_thirdTd.id = "description_length";
   fifthTr_thirdTd.innerText = `0/${maxDescription}`;
   descriptionTextarea.addEventListener("input", () => {
@@ -333,6 +540,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   sixthTr_firstTd.appendChild(timeOnSiteLabel);
   sixthTr.appendChild(sixthTr_firstTd);
   const sixthTr_secondtTd = document.createElement("td");
+  sixthTr_secondtTd.classList.add("timer-form-check");
   sixthTr_secondtTd.colSpan = 2;
   const siteOnTimeInput = document.createElement("input");
   siteOnTimeInput.type = "checkbox";
@@ -347,6 +555,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
       seventhTr_firstTd.innerText = "Site URL";
       seventhTr.appendChild(seventhTr_firstTd);
       const seventhTr_secondTd = document.createElement("td");
+      seventhTr_secondTd.classList.add("timer-form-field");
       seventhTr_secondTd.colSpan = 2;
       const urlInput = document.createElement("input");
       urlInput.classList.add("padding-10", "border-radius-10");
@@ -378,6 +587,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
       seventhTr_firstTd.innerText = "Site URL";
       seventhTr.appendChild(seventhTr_firstTd);
       const seventhTr_secondTd = document.createElement("td");
+      seventhTr_secondTd.classList.add("timer-form-field");
       seventhTr_secondTd.colSpan = 2;
       const urlInput = document.createElement("input");
       urlInput.classList.add("padding-10", "border-radius-10");
@@ -396,65 +606,42 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   eighth_firstTd.innerText = "Repeat";
   eighthTr.appendChild(eighth_firstTd);
   const eighth_secondTr = document.createElement("td");
+  eighth_secondTr.classList.add("timer-form-check");
   const repeatInput = document.createElement("input");
   repeatInput.type = "checkbox";
+  repeatInput.id = "repeat_input";
   eighth_secondTr.appendChild(repeatInput);
   eighthTr.appendChild(eighth_secondTr);
   table.appendChild(eighthTr);
   repeatInput.addEventListener("click", () => {
     if (repeatInput.checked) {
-      const ninthTr = document.createElement("tr");
-      ninthTr.id = "periodicity";
-      const ninthTr_firstTd = document.createElement("td");
-      ninthTr_firstTd.innerText = "Every";
-      ninthTr.appendChild(ninthTr_firstTd);
-      const ninthTr_secondTd = document.createElement("td");
-      const numberOfPeriods = document.createElement("input");
-      numberOfPeriods.type = "number";
-      numberOfPeriods.classList.add("padding-10", "border-radius-10");
-      numberOfPeriods.style.width = "35%";
-      ninthTr_secondTd.appendChild(numberOfPeriods);
-      const nameOfPeriods = document.createElement("select");
-      nameOfPeriods.classList.add("padding-10", "border-radius-10");
-      nameOfPeriods.style.width = "35%";
-      let periods = ["day", "week", "month", "year"];
-      const showPeriods = (p: string[]) => {
-        nameOfPeriods.innerHTML = "";
-        p.forEach((e) => {
-          const singlePeriod = document.createElement("option");
-          singlePeriod.innerText = e;
-          singlePeriod.value = e;
-          nameOfPeriods.appendChild(singlePeriod);
-        });
-      };
-      timeFieldChanger.addEventListener("click", () => {
-        if (timeFieldChanger.checked) {
-          periods.unshift("minute", "hour");
-          showPeriods(periods);
-        } else {
-          periods = periods.filter((el) => el !== "minute" && el !== "hour");
-          showPeriods(periods);
-        }
-      });
-      showPeriods(periods);
-      ninthTr_secondTd.appendChild(nameOfPeriods);
-      ninthTr.appendChild(ninthTr_secondTd);
-      table.appendChild(ninthTr);
+      renderPeriodicityRow(timeFieldChanger.checked, repeatEveryInput?.valueAsNumber || 1, repeatUnitSelect?.value || "week");
     } else {
       document.getElementById("periodicity")?.remove();
+      repeatEveryInput = null;
+      repeatUnitSelect = null;
     }
   });
+
+  if (edit && timerID !== undefined && timers[timerID].recurring?.active) {
+    repeatInput.checked = true;
+    renderPeriodicityRow(
+      timers[timerID].show_time,
+      timers[timerID].recurring.every,
+      timers[timerID].recurring.time_unit
+    );
+  }
 
   dialog.appendChild(table);
 
   const infosDiv = document.createElement("div");
   infosDiv.id = "infos";
+  infosDiv.classList.add("dialog-info");
   dialog.appendChild(infosDiv);
 
   // Buttons
   const buttonsDiv = document.createElement("div");
-  buttonsDiv.classList.add("flex");
-  buttonsDiv.style.cssText = "justify-content:center; gap: 5px;";
+  buttonsDiv.classList.add("flex", "dialog-actions");
 
   const saveButton = document.createElement("button");
   saveButton.addEventListener("click", () => {
@@ -475,6 +662,16 @@ function addEditForm(timers: Timer[], timerID?: number): void {
         newData.newTab.url = "";
       }
 
+      const recurringEveryRaw = repeatEveryInput?.valueAsNumber;
+      const recurringEvery = Number.isFinite(recurringEveryRaw) && recurringEveryRaw > 0
+        ? Math.floor(recurringEveryRaw)
+        : 1;
+      newData.recurring = {
+        active: repeatInput.checked,
+        every: recurringEvery,
+        time_unit: repeatUnitSelect?.value || (timeFieldChanger.checked ? "hour" : "week"),
+      };
+
       if (edit && timerID !== undefined) {
         timers[timerID] = newData as Timer;
       } else {
@@ -493,7 +690,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   saveButton.classList.add(
     "padding-10",
     "border-radius-10",
-    "myButton-myGold",
+    "myButton-dialog-accent",
     "myButton",
     "min-width-150",
     "cursor-pointer"
@@ -511,7 +708,7 @@ function addEditForm(timers: Timer[], timerID?: number): void {
   deleteButton.classList.add(
     "padding-10",
     "border-radius-10",
-    "myButton-myGold",
+    "myButton-dialog-danger",
     "myButton",
     "min-width-150",
     "cursor-pointer"
@@ -537,41 +734,176 @@ function timersUpdate(timers: Timer[]): void {
   const timestampNow = Date.now();
   timers.forEach((e, i) => {
     if (e.active) {
-      const daysNumberField = document.getElementById("daysNumber-" + i);
       const timestampLeft = e.end_date - timestampNow;
-      const timestampObject = convertTimestampToDaysHoursMinutes(timestampLeft, e.show_time);
-      if (daysNumberField) daysNumberField.innerText = String(timestampObject.days);
-      if (e.show_time) {
-        const hoursNum = document.getElementById("hoursNumber-" + i);
-        const hoursSub = document.getElementById("hoursSubtitle-" + i);
-        const minsNum = document.getElementById("minutesNumber-" + i);
-        const minsSub = document.getElementById("minutesSubtitle-" + i);
-        if (hoursNum) hoursNum.innerText = String(timestampObject.hours);
-        if (hoursSub) hoursSub.innerText = pluralize(timestampObject.hours, "hour", "hours");
-        if (minsNum) minsNum.innerText = String(timestampObject.minutes);
-        if (minsSub) minsSub.innerText = pluralize(timestampObject.minutes, "minute", "minutes");
-      }
+      const units = getTimerUnits(timestampNow, e.end_date, selectedDisplayFormat);
+      units.forEach((unit) => {
+        const valueField = document.getElementById(`${unit.key}Number-${i}`);
+        const labelField = document.getElementById(`${unit.key}Subtitle-${i}`);
+        if (valueField) valueField.innerText = String(unit.value);
+        if (labelField) labelField.innerText = unit.label;
+      });
       const currentProgress = calculateProgress(e.start_date, e.end_date, timestampNow);
       const progressBar = document.getElementById("progressBar-" + i);
       if (progressBar) {
         progressBar.setAttribute("value", String(currentProgress));
         progressBar.innerText = String(currentProgress);
       }
-      if (timestampLeft <= 0) {
-        triggerNotification(
-          `Congratulations! Your timer "${e.title}" just finished counting down. What now?`
-        );
-        playSound();
-        if (e.newTab.active) {
-          createTab(e.newTab.url);
-        }
-        e.active = false;
-        saveTimers(timers);
-        showTimers();
-      }
     }
   });
   timerTimeOut = setTimeout(() => timersUpdate(timers), 1000);
+}
+
+function openSettingsDialog(): void {
+  dialog.innerHTML = "";
+  dialog.showModal();
+  dialog.classList.add("dialog");
+
+  const heading = document.createElement("h3");
+  heading.innerText = "Settings";
+  dialog.appendChild(heading);
+
+  const row = document.createElement("div");
+  row.classList.add("settings-dialog-row");
+
+  const label = document.createElement("label");
+  label.setAttribute("for", "display_format");
+  label.innerText = "Display format";
+  row.appendChild(label);
+
+  const select = document.createElement("select");
+  select.id = "display_format";
+  select.classList.add("padding-10", "border-radius-10");
+
+  const daysOnly = document.createElement("option");
+  daysOnly.value = "days-only";
+  daysOnly.innerText = "Days only";
+  select.appendChild(daysOnly);
+
+  const full = document.createElement("option");
+  full.value = "full";
+  full.innerText = "Seconds, minutes, hours, days, months, years";
+  select.appendChild(full);
+
+  select.value = selectedDisplayFormat;
+  row.appendChild(select);
+  dialog.appendChild(row);
+
+  const importExportRow = document.createElement("div");
+  importExportRow.classList.add("flex", "dialog-actions");
+
+  const feedback = document.createElement("div");
+  feedback.classList.add("settings-dialog-feedback");
+
+  const exportButton = document.createElement("button");
+  exportButton.classList.add(
+    "padding-10",
+    "border-radius-10",
+    "myButton-dialog-accent",
+    "myButton",
+    "cursor-pointer"
+  );
+  exportButton.innerText = "Export timers";
+  exportButton.addEventListener("click", async () => {
+    try {
+      const timers = await getTimers();
+      const payload = JSON.stringify(timers, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      link.href = url;
+      link.download = `countdown-timers-${stamp}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      feedback.innerText = "Timers exported.";
+    } catch {
+      feedback.innerText = "Export failed.";
+    }
+  });
+  importExportRow.appendChild(exportButton);
+
+  const importInput = document.createElement("input");
+  importInput.type = "file";
+  importInput.accept = "application/json,.json";
+  importInput.style.display = "none";
+  importInput.addEventListener("change", async () => {
+    const file = importInput.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) {
+        throw new Error("Invalid JSON structure");
+      }
+      await saveTimers(parsed as Timer[]);
+      await ensureTimerStorageSchema();
+      await showTimers();
+      feedback.innerText = "Timers imported.";
+    } catch {
+      feedback.innerText = "Import failed. Use a valid JSON export file.";
+    } finally {
+      importInput.value = "";
+    }
+  });
+
+  const importButton = document.createElement("button");
+  importButton.classList.add(
+    "padding-10",
+    "border-radius-10",
+    "myButton-dialog-muted",
+    "myButton",
+    "cursor-pointer"
+  );
+  importButton.innerText = "Import timers";
+  importButton.addEventListener("click", () => {
+    importInput.click();
+  });
+  importExportRow.appendChild(importButton);
+
+  dialog.appendChild(importExportRow);
+  dialog.appendChild(importInput);
+  dialog.appendChild(feedback);
+
+  const actions = document.createElement("div");
+  actions.classList.add("flex", "dialog-actions");
+
+  const saveButton = document.createElement("button");
+  saveButton.classList.add(
+    "padding-10",
+    "border-radius-10",
+    "myButton-dialog-accent",
+    "myButton",
+    "cursor-pointer"
+  );
+  saveButton.innerText = "Save";
+  saveButton.addEventListener("click", async () => {
+    await persistDisplayFormat(normalizeDisplayFormat(select.value));
+    dialog.close();
+    dialog.innerHTML = "";
+    dialog.classList.remove("dialog");
+  });
+  actions.appendChild(saveButton);
+
+  const closeButton = document.createElement("button");
+  closeButton.classList.add(
+    "padding-10",
+    "border-radius-10",
+    "myButton-dialog-muted",
+    "myButton",
+    "cursor-pointer"
+  );
+  closeButton.innerText = "Close";
+  closeButton.addEventListener("click", () => {
+    dialog.close();
+    dialog.innerHTML = "";
+    dialog.classList.remove("dialog");
+  });
+  actions.appendChild(closeButton);
+
+  dialog.appendChild(actions);
 }
 
 // ---------- Reorder / Delete ----------
@@ -623,9 +955,14 @@ async function removeElement(timers: Timer[], currentIndex: number): Promise<voi
 // ---------- Render timers ----------
 
 async function showTimers(): Promise<void> {
+  const renderRequestId = ++timersRenderRequestId;
   const activeTimers = document.getElementById("cdbm_timers_active")!;
-  activeTimers.innerHTML = "";
   const timers = await getTimers();
+  if (renderRequestId !== timersRenderRequestId) {
+    return;
+  }
+
+  activeTimers.innerHTML = "";
   const timestampNow = Date.now();
 
   timers.forEach((e, i) => {
@@ -654,57 +991,15 @@ async function showTimers(): Promise<void> {
       const timerDiv = document.createElement("div");
       timerDiv.setAttribute("id", "timerDiv-" + i);
 
-      const timestampLeft = e.end_date - timestampNow;
-      const timestampObject = convertTimestampToDaysHoursMinutes(timestampLeft, e.show_time);
-
       const timerTitle = document.createElement("span");
       timerTitle.classList.add("font-oswald", "font-size-larger", "text-middle");
       timerTitle.innerText = e.title;
       timerDiv.appendChild(timerTitle);
 
-      const days = document.createElement("span");
-      days.classList.add("column");
-      const daysNumber = document.createElement("span");
-      daysNumber.setAttribute("id", "daysNumber-" + i);
-      daysNumber.innerText = String(timestampObject.days);
-      daysNumber.classList.add("text-middle", "text-bold", "font-size-4counter");
-      days.appendChild(daysNumber);
-      const daysSubtitle = document.createElement("span");
-      daysSubtitle.setAttribute("id", "daysSubtitle-" + i);
-      daysSubtitle.classList.add("text-middle");
-      daysSubtitle.innerText = pluralize(timestampObject.days, "day", "days");
-      days.appendChild(daysSubtitle);
-      timerDiv.appendChild(days);
-
-      if (e.show_time) {
-        const hours = document.createElement("span");
-        hours.classList.add("column");
-        const hoursNumber = document.createElement("span");
-        hoursNumber.classList.add("text-middle", "text-bold", "font-size-4counter");
-        hoursNumber.innerText = String(timestampObject.hours);
-        hoursNumber.setAttribute("id", "hoursNumber-" + i);
-        hours.appendChild(hoursNumber);
-        const hoursSubtitle = document.createElement("span");
-        hoursSubtitle.setAttribute("id", "hoursSubtitle-" + i);
-        hoursSubtitle.innerText = pluralize(timestampObject.hours, "hour", "hours");
-        hoursSubtitle.classList.add("text-middle");
-        hours.appendChild(hoursSubtitle);
-        timerDiv.appendChild(hours);
-
-        const minutes = document.createElement("span");
-        minutes.classList.add("column");
-        const minutesNumber = document.createElement("span");
-        minutesNumber.setAttribute("id", "minutesNumber-" + i);
-        minutesNumber.classList.add("text-middle", "text-bold", "font-size-4counter");
-        minutesNumber.innerText = String(timestampObject.minutes);
-        minutes.appendChild(minutesNumber);
-        const minutesSubtitle = document.createElement("span");
-        minutesSubtitle.setAttribute("id", "minutesSubtitle-" + i);
-        minutesSubtitle.innerText = pluralize(timestampObject.minutes, "minute", "minutes");
-        minutesSubtitle.classList.add("text-middle");
-        minutes.appendChild(minutesSubtitle);
-        timerDiv.appendChild(minutes);
-      }
+      const unitsContainer = document.createElement("div");
+      unitsContainer.classList.add("timer-units");
+      renderTimerUnits(unitsContainer, i, e.end_date);
+      timerDiv.appendChild(unitsContainer);
 
       const progress = calculateProgress(e.start_date, e.end_date, timestampNow);
       const progressBar = document.createElement("progress");
@@ -816,6 +1111,10 @@ async function showTimers(): Promise<void> {
     img.setAttribute("src", "/img/add.svg");
     addTimer.appendChild(img);
     activeTimers.appendChild(addTimer);
+  }
+
+  if (renderRequestId !== timersRenderRequestId) {
+    return;
   }
 
   clearTimeout(timerTimeOut);
@@ -933,7 +1232,7 @@ document.getElementById("aboutPlugin")!.addEventListener("click", () => {
   closeButton.classList.add(
     "cursor-pointer",
     "myButton",
-    "myButton-myGold",
+    "myButton-dialog-accent",
     "text-middle",
     "padding-10",
     "border-radius-10"
@@ -966,9 +1265,30 @@ document.getElementById("byMichalFutera")!.addEventListener("click", () => {
   if (link) createTab(link.link + UTM_PARAMS);
 });
 
+document.getElementById("settingsLink")!.addEventListener("click", () => {
+  openSettingsDialog();
+});
+
 // ---------- Init ----------
 
 window.addEventListener("load", async () => {
+  await loadDisplayFormat();
   await showTimers();
   await ensureTimerStorageSchema();
+});
+
+browser.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "sync") {
+    return;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(changes, DISPLAY_FORMAT_STORAGE_KEY)) {
+    selectedDisplayFormat = normalizeDisplayFormat(changes[DISPLAY_FORMAT_STORAGE_KEY].newValue);
+    showTimers();
+    return;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(changes, "cdbm_timers_storage")) {
+    showTimers();
+  }
 });
