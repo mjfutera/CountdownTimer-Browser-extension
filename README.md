@@ -66,7 +66,27 @@ Countdown Timer is a cross-browser extension for tracking important events with 
 - `entrypoints/background.ts` for alarms lifecycle
 - `entrypoints/newtab/` for the New Tab page
 
+
 ## Quality
 
 - Prettier
 - Automated publishing via `wxt submit`
+
+---
+
+# How to run the extension from source code (Opera/Chromium)
+
+1. **Download the source code** from GitHub (`Code` → `Download ZIP` or `git clone ...`).
+2. **Install Node.js** (https://nodejs.org/) if you don't have it already.
+3. Open a terminal in the project folder and run:
+	```
+	npm install
+	npm run build
+	```
+4. Go to the `.output/chrome-mv3` folder.
+5. In Opera (or Chrome/Edge):
+	- Open: `Extensions` → `Manage extensions` (`opera://extensions`)
+	- Enable developer mode.
+	- Click `Load unpacked` and select the `.output/chrome-mv3` folder.
+
+The extension will appear in your browser and work without being published in the store.
