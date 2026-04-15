@@ -1,6 +1,6 @@
 {
   "name": "countdowns-extension",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "description": "Create, manage, and be notified for important events.",
   "scripts": {
@@ -8,8 +8,10 @@
     "dev:firefox": "wxt -b firefox",
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",
+    "build:opera": "wxt build -b opera",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
+    "zip:opera": "wxt zip -b opera",
     "postinstall": "wxt prepare",
     "format": "prettier --check .",
     "format:write": "prettier --write ."
